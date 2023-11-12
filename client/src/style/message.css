@@ -1,0 +1,16 @@
+.message-box{
+  padding: 10px;
+  border: 1px solid inherit;
+  margin: 10px;
+  width: fit-content;
+  max-width: 320px;
+  border-radius: 10px;
+  background-color: rgb(193, 216, 235);
+}
+
+.message-content{
+  margin: 0;
+}
+
+.message-box.outgoing{
+align-self: flex-end;}

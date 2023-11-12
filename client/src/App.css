@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 20px;
+}
+
+nav{
+  margin-bottom: 30px;
+}
+
+body{
+  padding-top: 110px;
+  background-color: rgb(224, 234, 245);
+  color: rgb(12, 39, 67);
+  font-family: 'Raleway', sans-serif;
+}
+
+
+.btn:hover{
+  background-color: rgb(126, 161, 192);
+}
+
+.container{
+  margin: 0 auto;
+}
+
+a{
+  text-decoration: none;
+  color: rgb(69, 68, 68);
+  padding: 10px;
+}
+
+.navbrand-link{
+  font-size: 1.5rem;
+}
+
+.notLoggedIn{
+  padding: 30px;
+  text-align: center;
+}
+
+.post-content{
+  font-style: italic;
+}
+
+.post-input-box{
+  display: flex;
+  gap: 10px;
+  padding-bottom: 50px;
+  margin: auto;
+}
+
+.post-input{
+  height: 60px;
+}
+
+.post-list-title{
+  margin-bottom: 30px;
+}
+
+.post-block, .post-item.main{
+  display: flex;
+  border: 0.5px solid rgb(74, 74, 74);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.post-item.main{
+  flex-direction: column;
+}
+
+.post-item{
+  flex:11;
+}
+
+.post-item__delete-button{
+  flex: 1;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  background-color: inherit;
+  color: black;
+  border: none;
+}

@@ -1,0 +1,18 @@
+.conversation{
+  margin: 5px 0;
+  padding: 5px 15px;
+  /* border: 1px solid gray; */
+  border: none;
+  border-radius: 10px;
+  color: rgb(56, 73, 88);
+  cursor: pointer;
+  background-color: aliceblue;
+}
+
+.conversation:hover{
+  box-shadow: 10px 5px 10px white;
+}
+
+.selected{
+  background-color: rgb(186, 216, 243);
+}
