@@ -5,6 +5,8 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { registration, login } from "../http/userApi";
 import { observer } from "mobx-react-lite";
 import { Context } from "../main";
+import { jwtDecode } from 'jwt-decode';
+
 
 const Auth = observer(() => {
   const { user } = useContext(Context);
@@ -12,11 +14,11 @@ const Auth = observer(() => {
   const navigate = useNavigate();
   const isLogin = location.pathname === LOGIN_ROUTE;
 
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
 
   const emailValidator = (email) =>
     !["gmail", "hotmail", "yahoo", "outlook", "mail"].includes(
@@ -25,9 +27,14 @@ const Auth = observer(() => {
 
   const click = async (e) => {
     try {
-      let data;
+      let response;
       if (isLogin) {
-        data = await login(username, password);
+        response = await login(username, password);
+        user.setAccessToken(response);
+        let userData = jwtDecode(response);
+        user.setUser(userData);
+        user.setIsAuth(true);
+        navigate(MAIN_ROUTE);
       } else {
         if (
           !email ||
@@ -44,19 +51,17 @@ const Auth = observer(() => {
           );
           return;
         }
-        data = await registration(
+        response = await registration(
           email,
           password,
           firstName,
           lastName,
           username
         );
+        navigate(LOGIN_ROUTE);
       }
-      user.setUser(data);
-      user.setIsAuth(true);
-      navigate(MAIN_ROUTE);
     } catch (e) {
-      if (e.response.data.message) {
+      if (e.response?.data?.message) {
         alert(e.response.data.message);
       } else {
         console.log(e);

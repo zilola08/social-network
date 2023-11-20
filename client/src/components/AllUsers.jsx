@@ -1,7 +1,15 @@
 import React from "react";
-import { addChat } from "../http/chatApi";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const AllUsers = (props) => {
+
+  const axiosPrivate = useAxiosPrivate();
+
+  const addChat = async (sender,recipient) => {
+    const response = await axiosPrivate.post('api/chats',{sender,recipient }); 
+    return response;
+  }
+
   const handleClick = async (receiverUsername) => {
     await props.loadMyChats();
     console.log(props.myChats);
@@ -28,7 +36,7 @@ const AllUsers = (props) => {
   };
 
   if (props.allUsers.length === 0) {
-    return <p>No other users registered yet</p>;
+    return <p>No other users have registered yet</p>;
   } else {
     return props.allUsers.map((user) => (
       <button

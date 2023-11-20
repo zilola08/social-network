@@ -2,13 +2,28 @@ import React, { useEffect, useContext, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Container } from "react-bootstrap";
 import Post from "../components/Post";
-import { addPost, getAllPosts } from "../http/postApi";
+// import { addPost, getAllPosts } from "../http/postApi";
 import { Context } from "../main";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Main = () => {
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState("");
   const { user } = useContext(Context);
+  const axiosPrivate = useAxiosPrivate();
+
+  const getAllPosts = async () => {
+    const { data } = await axiosPrivate.get("api/posts");
+    return data;
+  };
+
+  const addPost = async (content, personUsername) => {
+    const response = await axiosPrivate.post("api/posts", {
+      content,
+      personUsername,
+    });
+    return response;
+  };
 
   const loadPosts = async () => {
     try {
@@ -19,8 +34,8 @@ const Main = () => {
       });
       setPosts(data);
     } catch (e) {
-      if (e.response.data.message) {
-        alert(e.response.data.message);
+      if (e.response?.data?.message) {
+        alert(e.response?.data?.message);
       } else {
         console.log(e);
       }
@@ -28,12 +43,10 @@ const Main = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log(user.user, content);
     e.preventDefault();
     if (user.user.username && content) {
       try {
         const response = await addPost(content, user.user.username);
-        console.log(response);
         loadPosts();
         setContent("");
         return response;
@@ -45,9 +58,9 @@ const Main = () => {
 
   useEffect(() => {
     loadPosts();
-  },[]);
-  
- return (
+  }, []);
+
+  return (
     <Container>
       <div className="post-input-box">
         <input
@@ -57,7 +70,11 @@ const Main = () => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         ></input>
-        <button type="submit" className="btn btn-dark button-post" onClick={handleSubmit}>
+        <button
+          type="submit"
+          className="btn btn-dark button-post"
+          onClick={handleSubmit}
+        >
           post
         </button>
       </div>
@@ -80,4 +97,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default observer(Main);

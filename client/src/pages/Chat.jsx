@@ -4,17 +4,15 @@ import Conversation from "../components/Conversation";
 import Message from "../components/Message";
 import { Button } from "react-bootstrap";
 import { Context } from "../main";
-import { addChat, getMyChats } from "../http/chatApi";
-import { addMessage, getMessagesInChat } from "../http/messageApi";
 import { io } from "socket.io-client";
-import OnlineUsers from "../components/OnlineUsers";
-import { getAllPersons } from "../http/personApi";
+// import OnlineUsers from "../components/OnlineUsers";
 import AllUsers from "../components/AllUsers";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Chat = () => {
   const [myChats, setMyChats] = useState([]);
   const [currentChat, setCurrentChat] = useState({});
-  const [onlineUsers, setOnlineUsers] = useState([]);
+  // const [onlineUsers, setOnlineUsers] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -22,6 +20,41 @@ const Chat = () => {
   const socket = useRef();
   const { user } = useContext(Context);
   const user_username = user.user.username;
+  const axiosPrivate = useAxiosPrivate();
+
+  const getMyChats = async (username) => {
+    const { data } = await axiosPrivate.get("api/chats/", {
+      params: { username: username },
+    });
+    return data;
+  };
+
+  const addMessage = async (
+    senderUsername,
+    receiverUsername,
+    chatId,
+    content
+  ) => {
+    const response = await axiosPrivate.post("api/messages", {
+      senderUsername: senderUsername,
+      receiverUsername: receiverUsername,
+      chatId: chatId,
+      content: content,
+    });
+    return response;
+  };
+
+  const getMessagesInChat = async (id) => {
+    const { data } = await axiosPrivate.get("api/messages/", {
+      params: { chatId: id },
+    });
+    return data;
+  };
+
+  const getAllPersons = async () => {
+    const { data } = await axiosPrivate.get("api/persons");
+    return data;
+  };
 
   useEffect(() => {
     socket.current = io("ws://localhost:8900", {
@@ -55,7 +88,6 @@ const Chat = () => {
       currentChat?.talkingWith === arrivalMessage.senderUsername &&
       //add the arriving msg data to messages so it renders on screen
       setMessages((prev) => [...prev, arrivalMessage]);
-    console.log("check on getMessage logging arrival message inside setMessage useffect", arrivalMessage);
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
@@ -64,7 +96,7 @@ const Chat = () => {
       onlineUsers = onlineUsers
         .map((user) => user.username)
         .filter((username) => username !== user_username);
-      setOnlineUsers(onlineUsers);
+      // setOnlineUsers(onlineUsers);
     });
   }, [user_username]);
 
@@ -117,7 +149,6 @@ const Chat = () => {
       chatId: chatId,
       receiver: receiver,
     };
-    console.log(message);
     if (message.content.length === 0) return;
     socket.current.emit("sendMessage", {
       senderUsername: sender,
@@ -133,7 +164,6 @@ const Chat = () => {
       );
       setMessages((prev) => [...prev, response.data]);
       setNewMessage("");
-      console.log(messages);
       return response;
     } catch (error) {
       console.log(error);

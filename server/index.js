@@ -3,15 +3,19 @@ require('dotenv').config();
 const sequelize = require('./db');
 const models = require('./db_models/db_models');
 //to be able to send requests from browser:
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const router = require('./routes/index');
 const errorHandler = require('./middleware/errorHandlingMiddleware');
+const cors = require("cors");
+const corsOptions = require('./config/corsOptions');
+// const corsMiddleware = require('./middleware/corsMiddleware');
+
 
 const PORT = process.env.PORT || 5000;
 
+
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions))
 // to be able to parse json:
 app.use(express.json());
 app.use(cookieParser());

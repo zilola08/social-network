@@ -1,14 +1,29 @@
 import React, { useEffect, useContext, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Button, Container } from "react-bootstrap";
-import Post from "../components/Post";
 import { Context } from "../main";
-import { deletePost, getMyPosts } from "../http/postApi";
-import MyPost from "../components/MYPost";
+// import { deletePost, getMyPosts } from "../http/postApi";
+import MyPost from "../components/MyPost";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
-const Profile = observer(() => {
+const Profile = () => {
   const [myPosts, setMyPosts] = useState([]);
   const { user } = useContext(Context);
+  const axiosPrivate = useAxiosPrivate();
+
+  const getMyPosts = async (username) => {
+    const { data } = await axiosPrivate.get("api/posts/myposts", {
+      params: { username: username },
+    });
+    return data;
+  };
+
+  const deletePost = async (postId, username) => {
+    const response = await axiosPrivate.delete("api/posts", {
+      params: { id: postId, personUsername: username },
+    });
+    return response;
+  };
 
   const loadMyPosts = async () => {
     try {
@@ -19,7 +34,7 @@ const Profile = observer(() => {
       });
       setMyPosts(data);
     } catch (e) {
-      if (e.response.data.message) {
+      if (e.response?.data?.message) {
         alert(e.response.data.message);
       } else {
         console.log(e);
@@ -27,9 +42,9 @@ const Profile = observer(() => {
     }
   };
 
-  const deleteMyPost = async (postId) => {
+  const deleteMyPost = async (postId, username) => {
     try {
-      await deletePost(postId);
+      await deletePost(postId, username);
       loadMyPosts();
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -43,21 +58,26 @@ const Profile = observer(() => {
   return (
     <Container>
       <h5 className="post-list-title">My posts</h5>
-        {myPosts.map(function (post) {
-          const date = post.createdAt.substr(0, 10);
-          return (
-            <div key={post.id} className="post-block">
-              <MyPost
-                date={date}
-                personUsername={post.personUsername}
-                content={post.content}
-              ></MyPost>
-              <Button className="post-item__delete-button" onClick={() => deleteMyPost(post.id)}>x</Button>
-            </div>
-          );
-        })}
+      {myPosts.map(function (post) {
+        const date = post.createdAt.substr(0, 10);
+        return (
+          <div key={post.id} className="post-block">
+            <MyPost
+              date={date}
+              personUsername={post.personUsername}
+              content={post.content}
+            ></MyPost>
+            <Button
+              className="post-item__delete-button"
+              onClick={() => deleteMyPost(post.id, post.personUsername)}
+            >
+              x
+            </Button>
+          </div>
+        );
+      })}
     </Container>
   );
-});
+};
 
-export default Profile;
+export default observer(Profile);

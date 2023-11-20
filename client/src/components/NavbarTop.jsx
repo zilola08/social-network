@@ -3,13 +3,17 @@ import { Context } from "../main";
 import { Nav, Navbar, Container, Button } from "react-bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import { logout } from "../http/userApi";
 
 const NavbarTop = observer(() => {
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const logout = () => {
+  const handleLogout = async () => {
+    const response = await logout();
     user.setUser({});
     user.setIsAuth(false);
+    user.setAccessToken(null);
+    return response;
   };
   return (
     <Navbar fixed="top" expand="lg" className="bg-body-tertiary">
@@ -30,7 +34,7 @@ const NavbarTop = observer(() => {
               <NavLink to="/profile">My posts</NavLink>
               <NavLink to="/chat">Chat</NavLink>
               {/* <NavLink to="/friends">Friends</NavLink> */}
-              <Button variant="dark" onClick={logout}>
+              <Button variant="dark" onClick={handleLogout}>
                 Logout
               </Button>
             </Nav>

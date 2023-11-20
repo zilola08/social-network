@@ -31,7 +31,7 @@ class ChatsController {
       const id = parseInt(req.query.id,10);
       const chat = await Chats.findByPk(id);
       if (!chat) {
-        return res.status(400).end('No post with this id');
+        return res.status(400).end('No chat with this id');
       }
       await chat.destroy();
       res.statusMessage = `chat with id ${id} was deleted`;
