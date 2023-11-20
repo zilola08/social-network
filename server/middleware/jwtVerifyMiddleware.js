@@ -13,13 +13,13 @@ const verifyJWT = (req,res,next) => {
       token,
       process.env.ACCESS_TOKEN_SECRET_KEY,
       (err,decoded) => {
-        if (err) return res.status(403).json({ message: "Access Denied. Invalid Token" });
+        if (err) return res.status(403).json({ message: "Access Denied. Invalid Access Token" });
         req.user = decoded;
         next();
       }
     );
   } catch (error) {
-    res.status(403).json({ message: "Access Denied. Invalid Token" })
+    res.status(403).json({ message: "Access Denied. Invalid Access Token" })
   }
 }
 

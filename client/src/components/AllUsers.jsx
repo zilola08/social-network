@@ -2,13 +2,15 @@ import React from "react";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const AllUsers = (props) => {
-
   const axiosPrivate = useAxiosPrivate();
 
-  const addChat = async (sender,recipient) => {
-    const response = await axiosPrivate.post('api/chats',{sender,recipient }); 
+  const addChat = async (sender, recipient) => {
+    const response = await axiosPrivate.post("api/chats", {
+      sender,
+      recipient,
+    });
     return response;
-  }
+  };
 
   const handleClick = async (receiverUsername) => {
     await props.loadMyChats();
@@ -17,6 +19,7 @@ const AllUsers = (props) => {
     const myChatUsernames = props.myChats.map((chat) =>
       username === chat.sender ? chat.recipient : chat.sender
     );
+    console.log(myChatUsernames);
     if (myChatUsernames.includes(receiverUsername)) {
       alert('chat with this user is already in "My conversations" list');
       return;
@@ -40,6 +43,7 @@ const AllUsers = (props) => {
   } else {
     return props.allUsers.map((user) => (
       <button
+        key={props.key}
         onClick={() => {
           handleClick(user);
         }}

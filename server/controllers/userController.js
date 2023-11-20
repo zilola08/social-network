@@ -81,7 +81,9 @@ class UserController {
       },
     });
     //sending refresh token in a cookie
-    res.cookie('refreshToken', refreshToken, {
+      res.cookie('refreshToken',refreshToken,{
+        secure: true,
+        sameSite: 'None',
         maxAge: 30 * 24 * 60 * 60 * 1000,//30 days
       httpOnly: true,//not available to javascript, more secure than localStorage
     });
@@ -107,7 +109,9 @@ class UserController {
       });
       if (!user) {
         //clear the cookies, need to give all the specs we gave when creating this cookie
-        res.clearCookie('refreshToken', {
+        res.clearCookie('refreshToken',{
+          secure: true,
+          sameSite: 'None',
           maxAge: 30 * 24 * 60 * 60 * 1000,
           httpOnly: true,
         });

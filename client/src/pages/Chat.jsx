@@ -69,10 +69,6 @@ const Chat = () => {
         chatId: currentChat.chatId,
         content: data.text,
       });
-      console.log(
-        "check on getMessage logging arrival message inside ongetMessage",
-        arrivalMessage
-      );
     });
   }, []);
 
@@ -102,7 +98,7 @@ const Chat = () => {
 
   useEffect(() => {
     loadMyChats();
-  }, [currentChat, user_username]);
+  }, [currentChat, user_username, arrivalMessage]);
 
   useEffect(() => {
     loadMessages(currentChat.chatId);
@@ -130,6 +126,7 @@ const Chat = () => {
   };
 
   const loadMessages = async (id) => {
+    if (!id) return;
     try {
       const messages = await getMessagesInChat(id);
       setMessages(messages);
@@ -149,7 +146,8 @@ const Chat = () => {
       chatId: chatId,
       receiver: receiver,
     };
-    if (message.content.length === 0) return;
+    if (message.content.length === 0 || !message.receiver || !message.chatId)
+      return;
     socket.current.emit("sendMessage", {
       senderUsername: sender,
       receiverUsername: receiver,
@@ -245,6 +243,7 @@ const Chat = () => {
         <div className="chat-users__wrapper all-users">
           <h6 className="users-list">Start a chat with:</h6>
           <AllUsers
+            key={user_username}
             allUsers={allUsers}
             setCurrentChat={setCurrentChat}
             setMyChats={setMyChats}
