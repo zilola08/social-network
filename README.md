@@ -3,10 +3,9 @@
 Social network web-app with real-time chat feature.
 Developed using React (Vite), NodeJS, Express, PostGres, Socket.io.
 
-To test the app, need to install all the npm dependencies.
-Run "npm run dev" in the app folder to start all servers.
-
-! Before running the app, please make sure to have:
+! To test the app, please do:
+1) install all the npm dependencies;
+2) make sure to have:
 - .env file in the server folder with these specified variables:
   - PORT=
   - DB_NAME=
@@ -21,4 +20,6 @@ Run "npm run dev" in the app folder to start all servers.
 
 - .env file in the client folder with these specified variables:
   - REACT_APP_API_URL = 'http://localhost:YOUR_PORT_NUMBER_FOR_CLIENT'
+    
+3) Run "npm run dev" in the app folder to start all servers.
 
