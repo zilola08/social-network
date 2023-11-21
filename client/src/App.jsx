@@ -14,11 +14,13 @@ function App() {
   useEffect(() => {
     check()
       .then((data) => {
+        console.log(data);
         user.setUser(data);
         user.setIsAuth(true);
       })
       .catch((e) => console.log(e))
       .finally(() => setLoading(false));
+    console.log(user);
   }, []);
 
   return (

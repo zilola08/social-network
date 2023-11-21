@@ -39,13 +39,18 @@ class PostsController {
   deletePost = async (req,res) => {
     try {
       const id = parseInt(req.query.id,10);
+      const username = req.query.personUsername;
       const post = await Posts.findByPk(id);
       if (!post) {
-        return res.status(400).end('No post with this id');
+        return res.status(404).end('No post with this id');
       }
-      await post.destroy();
-      res.statusMessage = `post with id ${id} was deleted`;
-      return res.status(200).send(res.statusMessage);
+      if (post.personUsername === username) {
+        await post.destroy();
+        res.statusMessage = `post with id ${id} was deleted`;
+        return res.status(200).send(res.statusMessage);
+      } else {
+        res.status(403).json({ message: "You can delete only your post" })
+      }
     } catch (error) {
       console.log(error);
       errorHandlingMiddleware(error,req,res);

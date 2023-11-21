@@ -4,12 +4,10 @@ import Conversation from "../components/Conversation";
 import Message from "../components/Message";
 import { Button } from "react-bootstrap";
 import { Context } from "../main";
-import { addChat, getMyChats } from "../http/chatApi";
-import { addMessage, getMessagesInChat } from "../http/messageApi";
 import { io } from "socket.io-client";
-import OnlineUsers from "../components/OnlineUsers";
-import { getAllPersons } from "../http/personApi";
+// import OnlineUsers from "../components/OnlineUsers";
 import AllUsers from "../components/AllUsers";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 const Chat = () => {
   const [myChats, setMyChats] = useState([]);
@@ -22,10 +20,65 @@ const Chat = () => {
   const socket = useRef();
   const { user } = useContext(Context);
   const user_username = user.user.username;
+  const axiosPrivate = useAxiosPrivate();
+
+  const addChat = async (sender, recipient) => {
+    const response = await axiosPrivate.post("api/chats", {
+      sender,
+      recipient,
+    });
+    return response;
+  };
+
+  const getMyChats = async (username) => {
+    const { data } = await axiosPrivate.get("api/chats/", {
+      params: { username: username },
+    });
+    return data;
+  };
+
+  const addMessage = async (
+    senderUsername,
+    receiverUsername,
+    chatId,
+    content
+  ) => {
+    const response = await axiosPrivate.post("api/messages", {
+      senderUsername: senderUsername,
+      receiverUsername: receiverUsername,
+      chatId: chatId,
+      content: content,
+    });
+    return response;
+  };
+
+  const getMessagesInChat = async (id) => {
+    const { data } = await axiosPrivate.get("api/messages/", {
+      params: { chatId: id },
+    });
+    return data;
+  };
+
+  const getAllPersons = async () => {
+    const { data } = await axiosPrivate.get("api/persons");
+    return data;
+  };
+
+  const setCurrentChatNoId = (username) => {
+    setCurrentChat((prev) => {
+      return {
+        chatId: null,
+        talkingWith: username,
+      };
+    });
+    console.log("currentChat", currentChat);
+  };
 
   useEffect(() => {
     socket.current = io("ws://localhost:8900", {
       transports: ["websocket", "polling", "flashsocket"],
+      reconnection: false,
+      autoConnect: false
     });
 
     socket.current.on("getMessage", (data) => {
@@ -36,16 +89,20 @@ const Chat = () => {
         chatId: currentChat.chatId,
         content: data.text,
       });
-      console.log(
-        "check on getMessage logging arrival message inside ongetMessage",
-        arrivalMessage
-      );
+
+      socket.on("connect_error", (error) => {
+        socket.disconnect();
+      });
     });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
     getAllUsernames();
-  }, []);
+  }, [user_username]);
 
   //handling arrival messages
   useEffect(() => {
@@ -55,7 +112,6 @@ const Chat = () => {
       currentChat?.talkingWith === arrivalMessage.senderUsername &&
       //add the arriving msg data to messages so it renders on screen
       setMessages((prev) => [...prev, arrivalMessage]);
-    console.log("check on getMessage logging arrival message inside setMessage useffect", arrivalMessage);
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
@@ -70,7 +126,7 @@ const Chat = () => {
 
   useEffect(() => {
     loadMyChats();
-  }, [currentChat, user_username]);
+  }, [currentChat, user_username, arrivalMessage]);
 
   useEffect(() => {
     loadMessages(currentChat.chatId);
@@ -98,6 +154,10 @@ const Chat = () => {
   };
 
   const loadMessages = async (id) => {
+    if (!id) {
+      setMessages([]);
+      return;
+    }
     try {
       const messages = await getMessagesInChat(id);
       setMessages(messages);
@@ -108,7 +168,23 @@ const Chat = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    const chatId = currentChat.chatId;
+    const myChatUsernames = myChats.map((chat) =>
+      user_username === chat.sender ? chat.recipient : chat.sender
+    );
+    let response;
+    if (!myChatUsernames.includes(currentChat.talkingWith)) {
+      response = await addChat(user_username, currentChat.talkingWith);
+      setCurrentChat((prevChat) => {
+        return {
+          ...prevChat,
+          chatId: response.data.chat_id,
+        };
+      });
+      loadMyChats();
+    }
+    const chatId = currentChat.chatId
+      ? currentChat.chatId
+      : response.data.chat_id;
     const sender = user_username;
     const receiver = currentChat.talkingWith;
     const message = {
@@ -117,13 +193,18 @@ const Chat = () => {
       chatId: chatId,
       receiver: receiver,
     };
-    console.log(message);
-    if (message.content.length === 0) return;
-    socket.current.emit("sendMessage", {
-      senderUsername: sender,
-      receiverUsername: receiver,
-      text: newMessage,
-    });
+    if (message.content.length === 0 || !message.receiver || !message.chatId)
+      return;
+    console.log("onlineUsers", onlineUsers);
+    if (onlineUsers.includes(receiver)) {
+      socket.current.emit("sendMessage", {
+        senderUsername: sender,
+        receiverUsername: receiver,
+        text: newMessage,
+      });
+    } else {
+      console.log(`user ${receiver} not online, socket event not emiited`);
+    }
     try {
       const response = await addMessage(
         message.sender,
@@ -133,7 +214,6 @@ const Chat = () => {
       );
       setMessages((prev) => [...prev, response.data]);
       setNewMessage("");
-      console.log(messages);
       return response;
     } catch (error) {
       console.log(error);
@@ -167,7 +247,7 @@ const Chat = () => {
       </div>
       <div className="chat-area">
         <div className="chat-area__wrapper">
-          {messages.length === 0 && !currentChat.chatId ? (
+          {messages.length === 0 && !currentChat.talkingWith ? (
             <div className="chat-area__top">
               <p>
                 Please select a conversation/user and send a message to start
@@ -213,11 +293,12 @@ const Chat = () => {
       </div>
       <div className="users-block">
         <div className="chat-users__wrapper all-users">
-          <h6 className="users-list">Start a chat with:</h6>
+          <h6 className="users-list">Registered users:</h6>
           <AllUsers
+            key={user_username}
             allUsers={allUsers}
-            setCurrentChat={setCurrentChat}
-            setMyChats={setMyChats}
+            loadMessages={loadMessages}
+            setCurrentChatNoId={setCurrentChatNoId}
             username={user_username}
             myChats={myChats}
             loadMyChats={loadMyChats}

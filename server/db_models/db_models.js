@@ -28,7 +28,9 @@ const Persons = sequelize.define('persons',{
   password: {
     type: DataTypes.STRING,
     allowNull: false,
-  }
+  },
+  refreshToken: {
+    type: DataTypes.STRING  }
 })
 
 const Posts = sequelize.define('posts',{
