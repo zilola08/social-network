@@ -10,7 +10,7 @@ const Message = (props) => {
   }, []);
 
   return (
-    <div key={props.key}
+    <div
       ref={scrollRef}
       className={props.outgoing ? " message-box outgoing" : "message-box"}
     >
