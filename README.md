@@ -4,8 +4,8 @@ Social network web-app with real-time chat feature.
 Developed using React (Vite), NodeJS, Express, PostGres, Socket.io.
 
 ! To test the app, please do:
-1) install all the npm dependencies;
-2) make sure to have:
+1) Install all the npm dependencies;
+2) Make sure to have:
 - .env file in the server folder with these specified variables:
   - PORT=
   - DB_NAME=
