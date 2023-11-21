@@ -1,6 +1,7 @@
 # Social network app
 
-Web-app uses React (Vite), NodeJS, Express, PostGres, Socket.io.
+Social network web-app with real-time chat feature.
+Developed using React (Vite), NodeJS, Express, PostGres, Socket.io.
 
 To test the app, need to install all the npm dependencies.
 Run "npm run dev" in the app folder to start all servers.
