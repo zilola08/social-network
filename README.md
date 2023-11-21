@@ -2,7 +2,10 @@
 
 Web-app uses React (Vite), NodeJS, Express, PostGres, Socket.io.
 
-To test it, need to install all the npm dependencies and make sure to have:
+To test the app, need to install all the npm dependencies.
+Run "npm run dev" in the app folder to start all servers.
+
+! Before running the app, please make sure to have:
 - .env file in the server folder with these specified variables:
   - PORT=
   - DB_NAME=
