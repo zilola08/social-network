@@ -21,5 +21,5 @@ Developed using React (Vite), NodeJS, Express, PostGres, Sequelize, Socket.io.
 - .env file in the client folder with these specified variables:
   - REACT_APP_API_URL = 'http://localhost:YOUR_PORT_NUMBER_FOR_CLIENT'
     
-3) Run "npm run dev" in the app folder to start all servers concurrently and start the app.
+3) Run "npm run dev" in the app folder to start all servers concurrently and get the app running.
 
